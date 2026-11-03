@@ -1,0 +1,16 @@
+﻿global using Application.Common.Options;
+global using Application.Contracts.Authentication;
+global using Application.Contracts.Repositories;
+global using Domain.Entities;
+global using Hangfire;
+global using Hangfire.PostgreSql;
+global using Infrastructure.Persistence;
+global using Infrastructure.Repositories;
+global using Infrastructure.Services.AuthServices;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Identity;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Npgsql;
