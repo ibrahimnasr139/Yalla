@@ -1,4 +1,9 @@
-﻿namespace Infrastructure.Extensions
+﻿using Application.Contracts.Abstractions;
+using Infrastructure.Services;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+
+namespace Infrastructure.Extensions
 {
     public static class InfrastructureService
     {
@@ -51,6 +56,20 @@
                .BindConfiguration(nameof(JwtOptions))
                .ValidateDataAnnotations()
                .ValidateOnStart();
+
+            builder.Services.AddOptions<WhySmsOptions>()
+              .BindConfiguration(nameof(WhySmsOptions))
+              .ValidateDataAnnotations()
+              .ValidateOnStart();
+
+            builder.Services.AddHttpClient<ISmsService, WhySmsService>((sp, client) =>
+            {
+                var option = sp.GetRequiredService<IOptions<WhySmsOptions>>().Value;
+                client.BaseAddress = new Uri(option.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(15);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", option.ApiToken);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            });
 
             builder.Services.AddScoped<ITokenProvider, TokenProvider>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
