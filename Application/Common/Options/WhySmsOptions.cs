@@ -12,7 +12,5 @@ namespace Application.Common.Options
 
         [Required, MaxLength(11)]
         public string SenderId { get; set; } = default!;
-
-        public string DefaultCountryCode { get; set; } = default!;
     }
 }

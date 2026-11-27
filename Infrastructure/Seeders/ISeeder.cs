@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Seeders
 {
-    internal interface ISeeder
+    public interface ISeeder
     {
         Task SeedAsync();
     }

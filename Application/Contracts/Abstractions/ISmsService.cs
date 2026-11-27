@@ -1,6 +1,4 @@
-﻿using Application.Common;
-
-namespace Application.Contracts.Abstractions
+﻿namespace Application.Contracts.Abstractions
 {
     public interface ISmsService
     {

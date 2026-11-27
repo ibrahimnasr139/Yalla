@@ -1,10 +1,8 @@
-﻿using Domain.Entities;
-
-namespace Application.Contracts.Authentication
+﻿namespace Application.Contracts.Authentication
 {
     public interface ITokenProvider
     {
-        string GenerateJwtToken(ApplicationUser user);
+        string GenerateJwtToken(ApplicationUser user, Role role);
         (string token, DateTime expiresOn) GenerateRefreshToken();
     }
 }

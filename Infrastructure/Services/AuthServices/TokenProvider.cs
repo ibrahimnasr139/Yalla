@@ -1,6 +1,4 @@
-﻿using Application.Common.Options;
-using Application.Contracts.Authentication;
-using Infrastructure.Persistence;
+﻿using Domain.Enums;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,19 +10,18 @@ namespace Infrastructure.Services.AuthServices
 {
     internal sealed class TokenProvider : ITokenProvider
     {
-        private readonly AppDbContext _context;
         private readonly JwtOptions _jwtoptions;
-        public TokenProvider(AppDbContext context, IOptions<JwtOptions> options)
+        public TokenProvider(IOptions<JwtOptions> options)
         {
-            _context = context;
             _jwtoptions = options.Value;
         }
 
-        public string GenerateJwtToken(ApplicationUser user)
+        public string GenerateJwtToken(ApplicationUser user, Role role)
         {
             var claims = new List<Claim>
             {
-                new (JwtRegisteredClaimNames.Sub, user.Id)
+                new (JwtRegisteredClaimNames.Sub, user.Id),
+                new(ClaimTypes.Role, role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtoptions.SecretKey));

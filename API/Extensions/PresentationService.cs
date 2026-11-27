@@ -1,11 +1,8 @@
 ﻿using API.Middlewares;
-using Application.Common.Options;
 using Application.Constants;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 namespace API.Extensions
 {
@@ -13,7 +10,12 @@ namespace API.Extensions
     {
         public static void AddPresentationServices(this WebApplicationBuilder builder)
         {
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>().AddProblemDetails();
@@ -50,36 +52,24 @@ namespace API.Extensions
                 });
             });
 
-            var jwtSettings = builder.Configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
-            builder.Services.AddAuthentication(options =>
+            builder.Services.AddRateLimiter(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = false;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.SecretKey!)),
-                    ValidIssuer = jwtSettings?.Issuer,
-                    ValidAudience = jwtSettings?.Audience,
-                };
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddPolicy("OtpByIp", httpContext =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 30,
+                            Window = TimeSpan.FromMinutes(5),
+                            SegmentsPerWindow = 5,
+                            QueueLimit = 0,
+                            AutoReplenishment = true
+                        }
+                    )
+                );
             });
-
-            builder.Services.AddAuthorization();
-
-            builder.Services.Configure<IdentityOptions>(options =>
-            {
-                options.User.RequireUniqueEmail = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-            });
-
         }
     }
 }

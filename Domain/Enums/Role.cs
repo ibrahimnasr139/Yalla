@@ -2,8 +2,8 @@
 {
     public enum Role
     {
-        Admin,
-        Passenger,
-        Captain
+        ADMIN,
+        PASSENGER,
+        CAPTAIN
     }
 }

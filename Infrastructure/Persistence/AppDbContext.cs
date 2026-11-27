@@ -6,7 +6,8 @@ namespace Infrastructure.Persistence
     public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         internal DbSet<RefreshToken> RefreshTokens { get; set; }
-
+        internal DbSet<Passenger> Passengers { get; set; }
+        internal DbSet<DevicePushToken> DevicePushTokens { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder builder)
         {

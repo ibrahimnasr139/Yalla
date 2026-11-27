@@ -1,6 +1,13 @@
-﻿global using Domain.Entities;
+﻿global using Application.Common;
+global using Application.Constants;
+global using AutoMapper;
+global using Domain.Entities;
+global using Domain.Enums;
+global using Domain.Errors;
 global using FluentValidation;
+global using MediatR;
 global using Microsoft.AspNetCore.Builder;
-global using Microsoft.Extensions.DependencyInjection;
-global using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 global using Microsoft.Extensions.Caching.Hybrid;
+global using Microsoft.Extensions.DependencyInjection;
+global using OneOf;
+global using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;

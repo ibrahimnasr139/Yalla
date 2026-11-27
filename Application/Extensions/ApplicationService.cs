@@ -10,6 +10,9 @@
 
             builder.Services.AddValidatorsFromAssembly(typeof(ApplicationService).Assembly)
                 .AddFluentValidationAutoValidation();
+
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUser, CurrentUser>();
         }
     }
 }

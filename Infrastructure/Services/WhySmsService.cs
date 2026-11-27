@@ -1,5 +1,6 @@
 ﻿using Application.Common;
 using Application.Contracts.Abstractions;
+using Application.Helpers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -24,7 +25,7 @@ namespace Infrastructure.Services
         }
         public async Task<SmsResult> SendBulkAsync(IEnumerable<string> recipients, string message, DateTime? scheduleTime = null, CancellationToken cancellationToken = default)
         {
-            var numbers = recipients.Select(Normalize).Where(n => n is not null).Distinct().ToList();
+            var numbers = recipients.Select(PhoneNumberHelper.NormalizeEgyptMobile).OfType<string>().Distinct().ToList();
 
             if (numbers.Count == 0)
                 return SmsResult.Failure("No valid phone numbers.");
@@ -60,19 +61,6 @@ namespace Infrastructure.Services
             }
         }
 
-        private string? Normalize(string raw)
-        {
-            var digits = new string(raw.Where(char.IsDigit).ToArray());
-
-            if (digits.Length == 0)
-                return null;
-            if (digits.StartsWith("00"))
-                digits = digits[2..];
-            else if (digits.StartsWith('0'))
-                digits = _options.DefaultCountryCode + digits[1..];
-
-            return digits.Length is >= 8 and <= 15 ? digits : null;
-        }
         private static string? ExtractId(ApiResponse? body)
         {
             return body?.Data is { ValueKind: JsonValueKind.Object } data &&
